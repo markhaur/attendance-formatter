@@ -20,7 +20,7 @@ type Attendance struct {
 func main() {
 	dateString := time.Now().Format("2006-01-02")
 	filename := fmt.Sprintf("./output%s.csv", dateString)
-	fmt.Printf("filename: %s", filename)
+
 	// open the file
 	file, err := os.Open(filename)
 	if err != nil {
@@ -33,14 +33,14 @@ func main() {
 	reader := csv.NewReader(file)
 	reader.LazyQuotes = true
 
-	attendanceRecords := make([]Attendance, 0, 0)
+	attendanceRecords := make([]Attendance, 0)
 	var checkoutTrack = make(map[string]int)
 	counter := 0
 
-	record, err := reader.Read()
-	for true {
+	record, _ := reader.Read()
+	for {
 		record, err = reader.Read()
-		if len(record) < 7 {
+		if err != nil || len(record) < 7 {
 			break
 		}
 		attendanceRecord := mapSliceToAttendance(record)
@@ -70,7 +70,7 @@ func main() {
 
 	var savedIndex int
 	for index, record := range attendanceRecords {
-		savedIndex, _ = checkoutTrack[record.EmployeeID]
+		savedIndex = checkoutTrack[record.EmployeeID]
 		if savedIndex == index {
 			writer.Write([]string{"P20", record.DeviceName, record.AuthDateTime, record.AuthDate, record.AuthTime, record.CardNO, record.EmployeeID})
 			continue
